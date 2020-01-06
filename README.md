@@ -30,7 +30,7 @@
 ## Installation
 
 ```bash
-$ cordova plugin add cordova-plugin-hotspot
+$ cordova plugin add git+https://github.com/IvanMakarenko/cordova-hotspot-plugin.git#develop
 ```
 ## Usage
 
