@@ -114,7 +114,7 @@ public class OreoWifiManager {
         return false;
     }
 
-    public void stopTethering() {
+    public boolean stopTethering() {
         try {
             Method method = mConnectivityManager.getClass().getDeclaredMethod("stopTethering", int.class);
             if (method == null) {
@@ -123,10 +123,12 @@ public class OreoWifiManager {
                 method.invoke(mConnectivityManager, ConnectivityManager.TYPE_MOBILE);
                 Log.d(TAG, "stopTethering invoked");
             }
+            return true;
         } catch (Exception e) {
             Log.e(TAG, "stopTethering error: " + e.toString());
             e.printStackTrace();
         }
+        return false;
     }
 
     private Class OnStartTetheringCallbackClass() {

@@ -10,11 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.io.*;
@@ -44,12 +47,13 @@ public class WifiHotSpots {
     boolean gotRoot = false;
     ScanTimer twoSecondTimer;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public WifiHotSpots(Context c) {
         mContext = c;
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         mWifiInfo = mWifiManager.getConnectionInfo();
         mOreoWifiManager = new OreoWifiManager(mContext);
-        showWritePermissionSettings();
+        showWritePermissionSettings(false);
     }
 
     /**
@@ -58,11 +62,11 @@ public class WifiHotSpots {
      */
     public void showWritePermissionSettings(boolean force) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (force || !Settings.System.canWrite(this.context)) {
+            if (force || !Settings.System.canWrite(mContext)) {
                 Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + this.context.getPackageName()));
+                intent.setData(Uri.parse("package:" + mContext.getPackageName()));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                this.context.startActivity(intent);
+                mContext.startActivity(intent);
             }
         }
     }
@@ -269,7 +273,7 @@ public class WifiHotSpots {
         if (configuredNetworks != null) {
             for (WifiConfiguration existingConfig : configuredNetworks) {
                 if (Pattern.matches("\"" + SSID + "\"", existingConfig.SSID) ||
-                    Pattern.matches(SSID, existingConfig.SSID)) {
+                        Pattern.matches(SSID, existingConfig.SSID)) {
                     return existingConfig.networkId;
                 }
             }
@@ -440,7 +444,7 @@ public class WifiHotSpots {
      */
     public boolean startHotSpot(boolean enable) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (turnOn) {
+            if (enable) {
                 // this dont work
                 // @todo remove
                 OnStartTetheringCallback callback = new OnStartTetheringCallback() {
@@ -512,7 +516,7 @@ public class WifiHotSpots {
     public boolean setHotSpot(String SSID, String mode, String passWord) {
         /*
          * Before setting the HotSpot with specific Id delete the default AP Name.
-    	 */
+         */
         String BACKSLASH = "\"";
         List<WifiConfiguration> list = mWifiManager.getConfiguredNetworks();
         if (list != null) {
