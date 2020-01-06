@@ -1,3 +1,7 @@
+<a name="1.2.11"></a>
+
+### Add supporting of using Hot spot for Oreo android
+
 <a name="1.2.10"></a>
 ## [1.2.10](https://github.com/hypery2k/cordova-hotspot-plugin/compare/v1.2.9...v1.2.10) (2018-01-31)
 

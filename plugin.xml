@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-hotspot" version="1.2.10">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-hotspot" version="1.2.11">
   <name>Cordova HotSpot Plugin</name>
   <license>MIT</license>
   <description>A Cordova plugin for managing HotSpot networks on Android.</description>
@@ -17,6 +17,9 @@
         <param name="android-package" value="de.martinreinhardt.cordova.plugins.hotspot.HotSpotPlugin"/>
       </feature>
     </config-file>
+    <edit-config file="AndroidManifest.xml" target="/manifest" mode="merge">
+      <manifest xmlns:tools="http://schemas.android.com/tools" />
+    </edit-config>
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
       <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -26,14 +29,21 @@
       <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
       <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
       <uses-permission android:name="android.permission.INTERNET"/>
+      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+      <uses-permission android:name="android.permission.WRITE_SETTINGS"
+          tools:ignore="ProtectedPermissions" />
+      <uses-permission android:name="android.permission.TETHER_PRIVILEGED" />
     </config-file>
     <config-file target="AndroidManifest.xml" parent="application/activity">
       <intent-filter>
         <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
       </intent-filter>
     </config-file>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <framework src="com.linkedin.dexmaker:dexmaker:2.25.0" />
+<!--    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>-->
     <source-file src="src/android/de/martinreinhardt/cordova/plugins/hotspot/HotSpotPlugin.java" target-dir="src/de/martinreinhardt/cordova/plugins/hotspot"/>
+    <source-file src="src/android/com/mady/wifi/api/OnStartTetheringCallback.java" target-dir="src/com/mady/wifi/api"/>
+    <source-file src="src/android/com/mady/wifi/api/OreoWifiManager.java" target-dir="src/com/mady/wifi/api"/>
     <source-file src="src/android/com/mady/wifi/api/ScanTimer.java" target-dir="src/com/mady/wifi/api"/>
     <source-file src="src/android/com/mady/wifi/api/ScanTimerSimple.java" target-dir="src/com/mady/wifi/api"/>
     <source-file src="src/android/com/mady/wifi/api/WifiAddresses.java" target-dir="src/com/mady/wifi/api"/>

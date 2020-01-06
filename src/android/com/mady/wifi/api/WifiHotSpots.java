@@ -32,6 +32,7 @@ public class WifiHotSpots {
 
     public static boolean isConnectToHotSpotRunning = false;
     WifiManager mWifiManager;
+    OreoWifiManager mOreoWifiManager;
     WifiInfo mWifiInfo;
     Context mContext;
     List<ScanResult> mResults;
@@ -47,7 +48,23 @@ public class WifiHotSpots {
         mContext = c;
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         mWifiInfo = mWifiManager.getConnectionInfo();
+        mOreoWifiManager = new OreoWifiManager(mContext);
+        showWritePermissionSettings();
+    }
 
+    /**
+     * Show write permission settings page to user if necessary or forced
+     * @param force show settings page even when rights are already granted
+     */
+    public void showWritePermissionSettings(boolean force) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (force || !Settings.System.canWrite(this.context)) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + this.context.getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                this.context.startActivity(intent);
+            }
+        }
     }
 
     /**
@@ -422,6 +439,25 @@ public class WifiHotSpots {
      * @return true if AP is started
      */
     public boolean startHotSpot(boolean enable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (turnOn) {
+                // this dont work
+                // @todo remove
+                OnStartTetheringCallback callback = new OnStartTetheringCallback() {
+                    @Override
+                    public void onTetheringStarted() {
+                    }
+
+                    @Override
+                    public void onTetheringFailed() {
+                    }
+                };
+
+                return mOreoWifiManager.startTethering(callback);
+            }
+            return mOreoWifiManager.stopTethering();
+        }
+
         mWifiManager.setWifiEnabled(false);
         Method[] mMethods = mWifiManager.getClass().getDeclaredMethods();
         for (Method mMethod : mMethods) {
@@ -507,6 +543,11 @@ public class WifiHotSpots {
         Method[] mMethods = mWifiManager.getClass().getDeclaredMethods();
 
         Log.v(LOG_TAG, "Creating hotspot with mode " + mode);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return mOreoWifiManager.configureHotspot(SSID, passWord);
+        }
+
         for (Method mMethod : mMethods) {
 
             if (mMethod.getName().equals("setWifiApEnabled")) {
